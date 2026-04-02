@@ -688,6 +688,126 @@
   .metallic-tip strong { color: var(--purple); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
+
+  /* === QUOTE PAGE === */
+  .quote-hero {
+    background: linear-gradient(135deg, #111111, #1a1a1a);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.4rem 1.2rem;
+    margin-bottom: 1.2rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-hero::before {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(204,0,204,0.2) 0%, transparent 70%);
+  }
+  .quote-hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 4px;
+    background: linear-gradient(90deg, #fff, #CC00CC);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .quote-hero-sub { font-size: 13px; color: rgba(255,255,255,0.55); }
+
+  .quote-result-card {
+    background: var(--white);
+    border: 2px solid var(--purple);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 6px 24px rgba(204,0,204,0.15);
+    animation: fadeIn .3s ease;
+  }
+  .quote-result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 3px;
+    color: var(--purple); margin-bottom: 1rem;
+  }
+  .quote-breakdown { display: flex; flex-direction: column; gap: 0; }
+  .quote-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--text);
+  }
+  .quote-row span:last-child { font-weight: 600; color: var(--text); }
+  .quote-total-row {
+    display: flex; justify-content: space-between;
+    padding: 12px 0 8px;
+    font-size: 18px; font-weight: 700;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+    color: var(--purple);
+    border-top: 2px solid var(--purple);
+    margin-top: 4px;
+  }
+  .quote-disclaimer {
+    font-size: 11px; color: var(--text-muted);
+    line-height: 1.6; margin-top: 10px;
+    background: #fafafa; border-radius: var(--radius-sm);
+    padding: 8px 10px; border-left: 3px solid var(--purple);
+    font-style: italic;
+  }
+
+
+  /* === PHOTO UPLOAD === */
+  .photo-upload-label {
+    font-size: 12px; color: var(--text-muted);
+    margin-bottom: 10px; line-height: 1.5;
+  }
+  .photo-drop-zone {
+    border: 2px dashed var(--purple);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    background: #faf9fe;
+    transition: all .2s;
+  }
+  .photo-drop-zone:hover { background: var(--purple-light); border-color: var(--purple-dark); }
+  .photo-drop-icon { font-size: 32px; margin-bottom: 6px; }
+  .photo-drop-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 1px; color: var(--purple);
+  }
+  .photo-drop-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .photo-previews {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .photo-thumb {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 2px solid var(--purple);
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .photo-remove {
+    position: absolute; top: 3px; right: 3px;
+    width: 20px; height: 20px;
+    background: rgba(0,0,0,0.7); color: #fff;
+    border: none; border-radius: 50%;
+    font-size: 14px; line-height: 1;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .photo-remove:hover { background: #cc0000; }
+
 </style>
 </head>
 <body>
@@ -709,12 +829,29 @@ const FINISHES = [
   {name:'Gloss',color:'#2C2C2A'},{name:'Matte',color:'#888780'},{name:'Satin',color:'#B4B2A9'},
   {name:'Metallic',color:'#6B7FD7'},{name:'Candy',color:'#8B2FC9'},{name:'Custom',color:'linear-gradient(135deg,#8B2FC9,#6B7FD7,#22a)'},
 ];
-const SIZES = ['15\"','16\"','17\"','18\"','19\"','20\"','21\"','22\"+'];
+const SIZES = ['15\"','16\"','17\"','18\"','19\"','20\"','21\"','22\"','23\"','24\"'];
+const QUOTE_SIZES = ['15\"','16\"','17\"','18\"','19\"','20\"','21\"','22\"','23\"','24\"'];
+
+function getBasePrice(size) {
+  const s = parseInt(size);
+  if (s <= 18) return 125;
+  if (s <= 22) return 150;
+  return 175;
+}
+
+function calcQuote(wheels, size, services) {
+  const base = getBasePrice(size) * wheels;
+  const hasTires = services.includes('rims-tires');
+  const hasFullService = services.includes('full');
+  const tiresAddon = (hasTires || hasFullService) ? 150 : 0;
+  const fullServiceAddon = hasFullService ? 100 : 0;
+  return base + tiresAddon + fullServiceAddon;
+}
 
 let S = {
-  page:'booking', step:1,
+  page:'quote', step:1,
   name:'', phone:'', email:'',
-  wheels:4, size:'18\"', finish:'', metallic:'', colorName:'', customColor:'', services:[], tireSize:'', tireBrand:'', clearCoat:'',
+  wheels:4, size:'18\"', finish:'', metallic:'', colorName:'', customColor:'', services:[], tireSize:'', tireBrand:'', clearCoat:'', quoteTotal:0, quoteDone:false, photos:[],
   date:null, calYear:new Date().getFullYear(), calMonth:new Date().getMonth(),
   errors:{}, sending:false,
   adminAuth:false, adminPw:'', adminCal:{year:new Date().getFullYear(), month:new Date().getMonth()}
@@ -1001,9 +1138,138 @@ function adminPage(){
   </div>`;
 }
 
+function quotePage(){
+  const total = calcQuote(S.wheels, S.size, S.services);
+  const base = getBasePrice(S.size);
+  const hasTires = S.services.includes('rims-tires');
+  const hasFullService = S.services.includes('full');
+  const hasBare = S.services.includes('bare');
+  const e = S.errors;
+
+  const serviceLabels = {
+    'full': 'Full Service (drop-off)',
+    'rims-tires': 'Rims with Tires',
+    'bare': 'Bare Rims Only',
+    'quote-tires': 'Add Tire Quote'
+  };
+
+  return `<div class="app">
+    ${headerHTML()}
+
+    <div class="quote-hero">
+      <div class="quote-hero-title">Get an Instant Quote</div>
+      <div class="quote-hero-sub">Tell us about your wheels and we'll give you a price estimate right away</div>
+    </div>
+
+    <div class="sec">Wheel details</div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field">
+          <label>Number of wheels</label>
+          <div class="wc">
+            <button class="wc-btn" id="q-dec-w">&minus;</button>
+            <span class="wc-num">${S.wheels}</span>
+            <button class="wc-btn" id="q-inc-w">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Wheel size</label>
+          <select id="q-size">
+            ${QUOTE_SIZES.map(s=>`<option${S.size===s?' selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">Service type</div>
+    <div class="card">
+      <div class="service-grid">
+        <div class="service-opt${S.services.includes('full')?' sel':''}" data-service="full">
+          <div class="service-opt-check">${S.services.includes('full')?'✓':''}</div>
+          <div class="service-icon">🚗</div>
+          <div class="service-label">Full Service</div>
+          <div class="service-desc">Drop off vehicle — we handle everything</div>
+        </div>
+        <div class="service-opt${S.services.includes('rims-tires')?' sel':''}" data-service="rims-tires">
+          <div class="service-opt-check">${S.services.includes('rims-tires')?'✓':''}</div>
+          <div class="service-icon">🛞</div>
+          <div class="service-label">Rims with Tires</div>
+          <div class="service-desc">Bring wheels with tires mounted</div>
+        </div>
+        <div class="service-opt${S.services.includes('bare')?' sel':''}" data-service="bare">
+          <div class="service-opt-check">${S.services.includes('bare')?'✓':''}</div>
+          <div class="service-icon">⭕</div>
+          <div class="service-label">Bare Rims</div>
+          <div class="service-desc">Bring bare rims, tires already off</div>
+        </div>
+        <div class="service-opt${S.services.includes('quote-tires')?' sel':''}" data-service="quote-tires">
+          <div class="service-opt-check">${S.services.includes('quote-tires')?'✓':''}</div>
+          <div class="service-icon">💰</div>
+          <div class="service-label">Add Tire Quote</div>
+          <div class="service-desc">Get a tire quote while wheels are off</div>
+        </div>
+      </div>
+      ${e.services?`<div class="error-msg" style="margin-top:8px">${e.services}</div>`:''}
+    </div>
+
+    ${S.services.length > 0 ? `
+    <div class="quote-result-card">
+      <div class="quote-result-title">Your Estimate</div>
+      <div class="quote-breakdown">
+        <div class="quote-row">
+          <span>Base price (${S.wheels} × ${S.size} @ $${base}/wheel)</span>
+          <span>$${base * S.wheels}</span>
+        </div>
+        ${(hasTires || hasFullService) ? `<div class="quote-row">
+          <span>Tire removal &amp; reinstall</span>
+          <span>+$150</span>
+        </div>` : ''}
+        ${hasFullService ? `<div class="quote-row">
+          <span>Full service (vehicle drop-off)</span>
+          <span>+$100</span>
+        </div>` : ''}
+        <div class="quote-total-row">
+          <span>Estimated Total</span>
+          <span>$${total}</span>
+        </div>
+      </div>
+      <div class="quote-disclaimer">
+        ⚠️ This is an estimate only. Final pricing may change upon inspection of your wheels. Additional charges may apply for special prep work, heavy corrosion, or custom requests.
+      </div>
+      <button class="btn-primary" id="quote-to-booking" style="margin-top:1rem">
+        I'm Happy with This — Schedule Now →
+      </button>
+    </div>
+
+    <div class="sec" style="margin-top:.5rem">Photos <span style="font-weight:400;color:#aaa;font-size:10px;text-transform:none;letter-spacing:0">(optional)</span></div>
+    <div class="card">
+      <div class="photo-upload-label">Upload photos of your wheels so we can give you the most accurate quote possible</div>
+      <div class="photo-drop-zone" id="photo-drop-zone">
+        <div class="photo-drop-icon">📸</div>
+        <div class="photo-drop-text">Tap to add photos</div>
+        <div class="photo-drop-sub">JPG, PNG, HEIC — up to 5 photos</div>
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none" />
+      </div>
+      ${S.photos && S.photos.length > 0 ? `
+      <div class="photo-previews">
+        ${S.photos.map((p,i)=>`
+        <div class="photo-thumb">
+          <img src="${p.url}" alt="Wheel photo ${i+1}" />
+          <button class="photo-remove" data-idx="${i}">×</button>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>` : ''}
+
+  </div>
+  <div class="footer-admin">
+    <a href="#" id="admin-link">Admin</a>
+  </div>`;
+}
+
 function render(){
   const root=document.getElementById('app-root');
   if(S.page==='admin'){ root.innerHTML=adminPage(); attachAdmin(); return; }
+  if(S.page==='quote'){ root.innerHTML=quotePage(); attachQuote(); return; }
   let body='';
   if(S.step===1) body=step1();
   else if(S.step===2) body=step2();
@@ -1016,6 +1282,59 @@ function render(){
   attachBooking();
   var hl = document.getElementById('header-logo');
   if(hl){ hl.src = document.getElementById('cc-logo-src').src; }
+}
+
+function attachQuote(){
+  const $=id=>document.getElementById(id);
+  const al=$('admin-link'); if(al) al.onclick=e=>{e.preventDefault();S.page='admin';render();};
+
+  $('q-dec-w').onclick=()=>{if(S.wheels>1){S.wheels--;render();}};
+  $('q-inc-w').onclick=()=>{if(S.wheels<20){S.wheels++;render();}};
+  $('q-size').onchange=e=>{S.size=e.target.value;render();};
+
+  document.querySelectorAll('.service-opt').forEach(el=>{el.onclick=()=>{
+    const v=el.dataset.service;
+    S.services=S.services.includes(v)?S.services.filter(x=>x!==v):[...S.services,v];
+    S.errors={};render();
+  };});
+
+  const qtb=$('quote-to-booking');
+  if(qtb) qtb.onclick=()=>{
+    if(!S.services.length){S.errors={services:'Please select a service type'};render();return;}
+    S.page='booking';S.step=1;render();
+  };
+
+  // Photo upload
+  const dropZone = document.getElementById('photo-drop-zone');
+  const photoInput = document.getElementById('photo-input');
+  if(dropZone && photoInput){
+    dropZone.onclick = () => photoInput.click();
+    photoInput.onchange = e => {
+      const files = Array.from(e.target.files);
+      const remaining = 5 - (S.photos||[]).length;
+      const toAdd = files.slice(0, remaining);
+      toAdd.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          S.photos = [...(S.photos||[]), {url: ev.target.result, name: file.name}];
+          render();
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+  }
+  // Photo remove buttons
+  document.querySelectorAll('.photo-remove').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      S.photos = S.photos.filter((_,i) => i !== idx);
+      render();
+    };
+  });
+
+  var hl=document.getElementById('header-logo');
+  if(hl){ hl.src=document.getElementById('cc-logo-src').src; }
 }
 
 function attachBooking(){
@@ -1077,7 +1396,7 @@ function attachBooking(){
     };
   }
   if(S.step===4){
-    $('new-appt').onclick=()=>{S={...S,step:1,name:'',phone:'',email:'',wheels:4,size:'18\"',finish:'',metallic:'',colorName:'',customColor:'',services:[],tireSize:'',tireBrand:'',clearCoat:'',date:null,errors:{},calYear:new Date().getFullYear(),calMonth:new Date().getMonth()};render();};
+    $('new-appt').onclick=()=>{S={...S,step:1,name:'',phone:'',email:'',wheels:4,size:'18\"',finish:'',metallic:'',colorName:'',customColor:'',services:[],tireSize:'',tireBrand:'',clearCoat:'',photos:[],date:null,errors:{},calYear:new Date().getFullYear(),calMonth:new Date().getMonth()};render();};
   }
 }
 
